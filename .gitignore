@@ -2,6 +2,7 @@
 # ENV FILES
 # =========================
 .env
+.env.local
 .env.*
 !.env.example
 
