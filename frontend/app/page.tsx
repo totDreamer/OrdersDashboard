@@ -150,23 +150,20 @@ export default function Home() {
           <YAxis tick={{ fontSize: 12 }} width={70} />
 
           <Tooltip
-            contentStyle={{
-              backgroundColor: "white",
-              borderRadius: 10,
-              border: "1px solid #ddd",
-            }}
-            labelStyle={{
-              color: "#000",
-              fontWeight: "bold",
-              marginBottom: 5,
-            }}
-            labelFormatter={(label) => formatDisplayDate(label)}
-            formatter={(value: number) =>
-              mode === "total"
-                ? [`${value.toLocaleString("ru-RU")} ₸`, getLabelName()]
-                : [value, getLabelName()]
-            }
-          />
+          contentStyle={{
+          backgroundColor: "white",
+          borderRadius: 10,
+          border: "1px solid #ddd",
+        }}
+          labelFormatter={(label) => formatDisplayDate(label)}
+          formatter={(value: any) => {
+          if (value === undefined || value === null) return ["0", ""]
+
+          return mode === "total"
+            ? [`${Number(value).toLocaleString("ru-RU")} ₸`, getLabelName()]
+            : [value, getLabelName()]
+        }}
+      />
 
           <Line
             type="monotone"
