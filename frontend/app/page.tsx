@@ -150,20 +150,50 @@ export default function Home() {
           <YAxis tick={{ fontSize: 12 }} width={70} />
 
           <Tooltip
-          contentStyle={{
-          backgroundColor: "white",
-          borderRadius: 10,
-          border: "1px solid #ddd",
-        }}
-          labelFormatter={(label) => formatDisplayDate(label)}
-          formatter={(value: any) => {
-          if (value === undefined || value === null) return ["0", ""]
+            content={({ active, payload, label }) => {
+              if (!active || !payload?.length) return null
 
-          return mode === "total"
-            ? [`${Number(value).toLocaleString("ru-RU")} ₸`, getLabelName()]
-            : [value, getLabelName()]
-        }}
-      />
+              const date = formatDisplayDate(label as string)
+
+              return (
+                <div
+                  style={{
+                    background: "white",
+                    border: "1px solid #ddd",
+                    borderRadius: 12,
+                    padding: 12,
+                    boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+                    minWidth: 160,
+                  }}
+                >
+                  {/* 📅 ДАТА — теперь ВИДНА */}
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      fontSize: 14,
+                      color: "#111",
+                      marginBottom: 8,
+                    }}
+                  >
+                    📅 {date}
+                  </div>
+
+                  {/* 📊 значение */}
+                  <div style={{ fontSize: 13 }}>
+                    {payload.map((entry, i) => (
+                      <div key={i} style={{ color: "#444", marginBottom: 4 }}>
+                        <span style={{ fontWeight: 600 }}>
+                          {entry.name}:
+                        </span>{" "}
+                        {entry.value?.toLocaleString("ru-RU")}
+                        {entry.dataKey === "total" ? " ₸" : ""}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            }}
+          />
 
           <Line
             type="monotone"
