@@ -23,6 +23,15 @@ type Mode = "count" | "total"
 export default function Home() {
   const [data, setData] = useState<any[]>([])
   const [mode, setMode] = useState<Mode>("count")
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640)
+    check()
+
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
 
   useEffect(() => {
     fetchOrders()
@@ -92,6 +101,7 @@ export default function Home() {
       })
     }
 
+    // ✅ ВСЕГДА полный массив (без искажений)
     setData(fullMonth)
   }
 
@@ -138,16 +148,34 @@ export default function Home() {
         </button>
       </div>
 
-      <ResponsiveContainer width="100%" height={420}>
+      <ResponsiveContainer width="100%" height={isMobile ? 300 : 420}>
         <LineChart
           data={data}
-          margin={{ top: 10, right: 20, left: 40, bottom: 10 }}
+          margin={
+            isMobile
+              ? { top: 10, right: 10, left: 10, bottom: 10 }
+              : { top: 10, right: 20, left: 40, bottom: 10 }
+          }
         >
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray={isMobile ? "2 2" : "3 3"} />
 
-          <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+          <XAxis
+            dataKey="date"
+            tick={{ fontSize: isMobile ? 10 : 12 }}
+            tickFormatter={(value, index) => {
+              if (!isMobile) return value
 
-          <YAxis tick={{ fontSize: 12 }} width={70} />
+              // ✅ показываем только каждую 4-ю дату
+              return index % 4 === 0
+                ? new Date(value).getDate()
+                : ""
+            }}
+          />
+
+          <YAxis
+            tick={{ fontSize: isMobile ? 10 : 12 }}
+            width={isMobile ? 40 : 70}
+          />
 
           <Tooltip
             content={({ active, payload, label }) => {
@@ -161,12 +189,11 @@ export default function Home() {
                     background: "white",
                     border: "1px solid #ddd",
                     borderRadius: 12,
-                    padding: 12,
+                    padding: isMobile ? 8 : 12,
                     boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
-                    minWidth: 160,
+                    minWidth: isMobile ? 120 : 160,
                   }}
                 >
-                  {/* 📅 ДАТА — теперь ВИДНА */}
                   <div
                     style={{
                       fontWeight: 700,
@@ -178,7 +205,6 @@ export default function Home() {
                     📅 {date}
                   </div>
 
-                  {/* 📊 значение */}
                   <div style={{ fontSize: 13 }}>
                     {payload.map((entry, i) => (
                       <div key={i} style={{ color: "#444", marginBottom: 4 }}>
@@ -202,6 +228,7 @@ export default function Home() {
             stroke={mode === "count" ? "#8884d8" : "#82ca9d"}
             strokeWidth={2}
             dot={false}
+            activeDot={{ r: isMobile ? 4 : 6 }}
           />
         </LineChart>
       </ResponsiveContainer>
